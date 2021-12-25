@@ -1,12 +1,19 @@
-import type { NextPage } from "next"
+import type { NextPage, GetStaticProps } from "next"
 import Head from "next/head"
 import Image from "next/image"
 import styles from "../styles/Home.module.css"
 
 /* Import Component */
 import HeaderBarTW from "src/components/HeaderBarTW"
+import GridListTW from "src/components/GridListTW"
+import Carousel from "src/components/CarouselTW"
 
-const Home: NextPage = () => {
+interface HomeProperty {
+  dogData?: any
+  dogImageList?: []
+}
+
+const Home: NextPage<HomeProperty> = ({ dogData, dogImageList }) => {
   return (
     <div className={styles.container}>
       <Head>
@@ -17,11 +24,36 @@ const Home: NextPage = () => {
 
       <HeaderBarTW></HeaderBarTW>
 
+      {/* <GridListTW itemList={dogImageList}></GridListTW> */}
+
+      <Carousel itemList={dogImageList}></Carousel>
+
       <p className=" text-black font-extrabold text-3xl md:text-5xl">
         Ghostwind CSS
       </p>
     </div>
   )
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const headers = {
+    "x-api-key": "e10cdc7a-3fa2-4945-b892-f9514812a1a4",
+  }
+  const dogData = await fetch(
+    "https://api.thedogapi.com/v1/breeds?attach_breed=0&limit=20",
+    { headers }
+  ).then(async (response) => await response.json())
+  // console.log(data)
+
+  const dogImageList = dogData.map((item: any) => {
+    return item.image
+  })
+  // console.log(imageList)
+
+  //return multiple parameter
+  return {
+    props: { dogData, dogImageList },
+  }
 }
 
 export default Home
